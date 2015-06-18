@@ -2,8 +2,7 @@ FROM base/archlinux
 MAINTAINER Marc Richter <mail@marc-richter.info>
 
 # Fix for "signature from "Anatol Pomozov <anatol.pomozov@gmail.com>" is unknown trust"
-RUN dirmngr </dev/null \
-  && pacman-key --populate archlinux \
+RUN pacman-key --populate archlinux \
   && pacman-key --refresh-keys
 
 # Optimize mirror list
