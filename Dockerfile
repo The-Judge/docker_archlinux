@@ -2,12 +2,13 @@ FROM base/archlinux
 MAINTAINER Marc Richter <mail@marc-richter.info>
 
 # Optimize mirror list
-RUN yes | pacman -S reflector \
+RUN pacman -Syy \
+  && yes | pacman -S reflector \
   && cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup \
   && reflector -l 200 -p http --sort rate --save /etc/pacman.d/mirrorlist
 
 # Update system to most recent
-RUN yes | pacman -Suy
+RUN yes | pacman -Su
 
 # Remove orphaned packages
 ADD helpers/remove_orphaned_packages.sh /tmp/
