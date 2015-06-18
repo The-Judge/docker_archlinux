@@ -11,6 +11,9 @@ RUN pacman -Syy \
   && cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup \
   && reflector -l 200 -p http --sort rate --save /etc/pacman.d/mirrorlist
 
+# Remove reflector and it's prerequirements
+RUN yes | pacman -Rsn reflector python
+
 # Update system to most recent
 RUN yes | pacman -Su
 
