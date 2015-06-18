@@ -15,7 +15,7 @@ RUN pacman -Syy \
 RUN yes | pacman -Su
 
 # Fix possibly incorrect pacman db format after world upgrade
-pacman-db-upgrade
+RUN pacman-db-upgrade
 
 # Remove orphaned packages
 ADD helpers/remove_orphaned_packages.sh /tmp/
