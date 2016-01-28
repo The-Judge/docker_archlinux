@@ -22,10 +22,9 @@ RUN yes | pacman -Su
 RUN pacman-db-upgrade
 
 # Remove orphaned packages
-ADD helpers/remove_orphaned_packages.sh /tmp/
-RUN chmod +x /tmp/remove_orphaned_packages.sh \
-  && /tmp/remove_orphaned_packages.sh \
-  && rm -f /tmp/remove_orphaned_packages.sh
+RUN if [ ! -z "$(pacman -Qtdq)" ]; then \
+    yes | pacman -Rns $(pacman -Qtdq) ; \
+  fi
 
 # Clear pacman caches
 RUN yes | pacman -Scc
