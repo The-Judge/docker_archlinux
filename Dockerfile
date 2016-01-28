@@ -6,13 +6,14 @@ RUN pacman-key --populate archlinux \
   && pacman-key --refresh-keys
 
 # Optimize mirror list
-RUN pacman -Syy \
-  && yes | pacman -S reflector \
+RUN yes | pacman -Suyy \
+  && pacman-db-upgrade \
+  && yes | pacman -S reflector rsync \
   && cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup \
-  && reflector -l 200 -p http --sort rate --save /etc/pacman.d/mirrorlist
+  && reflector -l 200 -p https --sort rate --save /etc/pacman.d/mirrorlist
 
 # Remove reflector and it's prerequirements
-RUN yes | pacman -Rsn reflector python
+RUN yes | pacman -Rsn reflector python rsync
 
 # Update system to most recent
 RUN yes | pacman -Su
