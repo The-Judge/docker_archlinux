@@ -31,3 +31,14 @@ RUN yes | pacman -Scc
 
 # Optimize pacman database
 RUN pacman-optimize
+
+# Housekeeping
+RUN rm -f /etc/pacman.d/mirrorlist.pacnew
+RUN mv -f /etc/systemd/coredump.conf.pacnew /etc/systemd/coredump.conf
+RUN mv -f /etc/locale.gen.pacnew /etc/locale.gen
+
+# Generate locales
+RUN cat /etc/locale.gen | expand | sed 's/^# .*$//g' | sed 's/^#$//g' | egrep -v '^$' | sed 's/^#//g' > /tmp/locale.gen \
+  && mv -f /tmp/locale.gen /etc/locale.gen \
+  && locale-gen
+
