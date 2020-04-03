@@ -22,15 +22,21 @@ RUN yes | pacman -Su \
     && if [ ! -z "$(pacman -Qtdq)" ]; then \
       yes | pacman -Rns $(pacman -Qtdq) ; \
     fi \
-    && yes | pacman -Scc \
-    && pacman-optimize
+    && yes | pacman -Scc
 
 # Housekeeping
-RUN rm -f /etc/pacman.d/mirrorlist.pacnew
-RUN mv -f /etc/systemd/coredump.conf.pacnew /etc/systemd/coredump.conf
-RUN mv -f /etc/locale.gen.pacnew /etc/locale.gen
+RUN [[ -f /etc/pacman.d/mirrorlist.pacnew ]] && rm -f /etc/pacman.d/mirrorlist.pacnew
+RUN for file in $(find /etc -name '*.pacnew'); do \
+    mv -fv ${file} $(echo ${file} | sed 's#\.pacnew##g'); done
+
+# (Re-)install glibc, to fix some things (like missing i18n definition files at
+# /usr/share/i18n/locales)
+RUN yes | pacman -Sy \
+  && yes | pacman -S glibc \
+  && yes | pacman -Scc
 
 # Generate locales
+COPY files/locale.gen /etc/locale.gen
 RUN cat /etc/locale.gen | expand | sed 's/^# .*$//g' | sed 's/^#$//g' | egrep -v '^$' | sed 's/^#//g' > /tmp/locale.gen \
   && mv -f /tmp/locale.gen /etc/locale.gen \
   && locale-gen
