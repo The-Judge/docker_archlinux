@@ -2,7 +2,9 @@ FROM archlinux
 LABEL maintainer="Marc Richter <mail@marc-richter.info>"
 
 # Fix for "signature from "Anatol Pomozov <anatol.pomozov@gmail.com>" is unknown trust"
-RUN pacman-key --populate archlinux \
+RUN rm -fr /etc/pacman.d/gnupg \
+  && pacman-key --init \
+  && pacman-key --populate archlinux \
   && pacman-key --refresh-keys
 
 # Optimize mirror list by installing "reflector" and run it
@@ -16,14 +18,12 @@ RUN yes | pacman -Suyy \
 # world upgrade, remove orphaned packages and clear pacman caches to have a smaller
 # image
 RUN yes | pacman -Su \
-    pacman-db-upgrade \
-    if [ ! -z "$(pacman -Qtdq)" ]; then \
+    && pacman-db-upgrade \
+    && if [ ! -z "$(pacman -Qtdq)" ]; then \
       yes | pacman -Rns $(pacman -Qtdq) ; \
     fi \
-    yes | pacman -Scc
-
-# Optimize pacman database
-RUN pacman-optimize
+    && yes | pacman -Scc \
+    && pacman-optimize
 
 # Housekeeping
 RUN rm -f /etc/pacman.d/mirrorlist.pacnew
