@@ -1,33 +1,26 @@
 FROM base/archlinux
-MAINTAINER Marc Richter <mail@marc-richter.info>
+LABEL maintainer="Marc Richter <mail@marc-richter.info>"
 
 # Fix for "signature from "Anatol Pomozov <anatol.pomozov@gmail.com>" is unknown trust"
 RUN pacman-key --populate archlinux \
   && pacman-key --refresh-keys
 
-# Optimize mirror list
+# Optimize mirror list by installing "reflector" and run it
 RUN yes | pacman -Suyy \
   && pacman-db-upgrade \
   && yes | pacman -S reflector rsync \
   && cp -vf /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup \
   && reflector -l 200 -p https --sort rate --save /etc/pacman.d/mirrorlist
 
-# Remove reflector and it's prerequirements
-RUN yes | pacman -Rsn reflector python rsync
-
-# Update system to most recent
-RUN yes | pacman -Su
-
-# Fix possibly incorrect pacman db format after world upgrade
-RUN pacman-db-upgrade
-
-# Remove orphaned packages
-RUN if [ ! -z "$(pacman -Qtdq)" ]; then \
-    yes | pacman -Rns $(pacman -Qtdq) ; \
-  fi
-
-# Clear pacman caches
-RUN yes | pacman -Scc
+# Update system to most recent state, fix possibly incorrect pacman db format after
+# world upgrade, remove orphaned packages and clear pacman caches to have a smaller
+# image
+RUN yes | pacman -Su \
+    pacman-db-upgrade \
+    if [ ! -z "$(pacman -Qtdq)" ]; then \
+      yes | pacman -Rns $(pacman -Qtdq) ; \
+    fi \
+    yes | pacman -Scc
 
 # Optimize pacman database
 RUN pacman-optimize
@@ -41,4 +34,3 @@ RUN mv -f /etc/locale.gen.pacnew /etc/locale.gen
 RUN cat /etc/locale.gen | expand | sed 's/^# .*$//g' | sed 's/^#$//g' | egrep -v '^$' | sed 's/^#//g' > /tmp/locale.gen \
   && mv -f /tmp/locale.gen /etc/locale.gen \
   && locale-gen
-
