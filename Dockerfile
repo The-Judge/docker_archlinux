@@ -1,7 +1,7 @@
 FROM archlinux
 LABEL maintainer="Marc Richter <mail@marc-richter.info>"
 
-# Fix for "signature from "Anatol Pomozov <anatol.pomozov@gmail.com>" is unknown trust"
+# https://www.archlinux.org/news/gnupg-21-and-the-pacman-keyring/
 RUN rm -fr /etc/pacman.d/gnupg \
   && pacman-key --init \
   && pacman-key --populate archlinux \
