@@ -1,4 +1,4 @@
-FROM base/archlinux
+FROM archlinux
 LABEL maintainer="Marc Richter <mail@marc-richter.info>"
 
 # Fix for "signature from "Anatol Pomozov <anatol.pomozov@gmail.com>" is unknown trust"
